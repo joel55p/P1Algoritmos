@@ -98,4 +98,15 @@ import java.util.ArrayList;
          return tokens;
      }
  }
+
+
+
+ /*Referencias bibliográficas 
+
+OpenAI. (2025). ChatGPT (versión mas reciente) [Modelo de lenguaje de gran 
+tamaño]. https://chatgpt.com  
+
+Descripción del uso de IA: 
+
+Fue usado para idea clave que se implementó para tokenizar y separar la entrada, ya luego se implementaron complementos propios adicionales para obtener una resultante del programa.  */
  
