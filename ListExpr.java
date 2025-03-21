@@ -1,7 +1,7 @@
 import java.util.List;
 
 public class ListExpr extends Expr {
-    private List<Expr> elements;
+    public List<Expr> elements;
     public ListExpr(List<Expr> elements) { this.elements = elements; }
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
@@ -12,4 +12,9 @@ public class ListExpr extends Expr {
         sb.append("]");
         return sb.toString();
     }
+
+    public List<Expr> getElements() {
+        return elements;
+    }
+    
 }

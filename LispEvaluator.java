@@ -12,6 +12,12 @@ public class LispEvaluator {
         builtins.put("-", args -> new NumberExpr(((NumberExpr) args.get(0)).value - ((NumberExpr) args.get(1)).value));
         builtins.put("*", args -> new NumberExpr(((NumberExpr) args.get(0)).value * ((NumberExpr) args.get(1)).value));
         builtins.put("/", args -> new NumberExpr(((NumberExpr) args.get(0)).value / ((NumberExpr) args.get(1)).value));
+        builtins.put("ATOM", args -> new BooleanExpr(!(args.get(0) instanceof ListExpr)));
+        builtins.put("LIST", args -> new BooleanExpr(args.get(0) instanceof ListExpr));
+        builtins.put("EQUAL", args -> new BooleanExpr(args.get(0).equals(args.get(1))));
+        builtins.put("<", args -> new BooleanExpr(((NumberExpr) args.get(0)).value < ((NumberExpr) args.get(1)).value));
+        builtins.put(">", args -> new BooleanExpr(((NumberExpr) args.get(0)).value > ((NumberExpr) args.get(1)).value));
+
     }
 
     public Expr eval(Expr expr) {
@@ -45,6 +51,13 @@ public class LispEvaluator {
                     variables.put(varName, value);
                     return value;
                 }
+                else if ("QUOTE".equals(funcName)) {
+                    if (elements.size() != 2) {
+                        throw new RuntimeException("Error en QUOTE: Uso incorrecto");
+                    }
+                    return elements.get(1); // Retorna el argumento sin evaluarlo
+                }
+                
             }
             throw new RuntimeException("Operador no válido: " + first);
         }

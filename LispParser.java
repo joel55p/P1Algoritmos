@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class LispParser {
+    
     public Expr parse(String input) {
         List<String> tokens = tokenize(input);
         if (!isValidParentheses(tokens)) {
