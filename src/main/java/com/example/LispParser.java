@@ -29,7 +29,7 @@ public class LispParser {
     private Expr readFromTokens(List<String> tokens) {
         Stack<List<Expr>> stack = new Stack<>();
         List<Expr> currentList = new ArrayList<>();
-
+    
         for (String token : tokens) {
             if ("(".equals(token)) {
                 stack.push(currentList);
@@ -43,10 +43,17 @@ public class LispParser {
                 currentList.add(parseAtom(token));
             }
         }
-
+    
         if (!stack.isEmpty()) throw new RuntimeException("Error: Falta paréntesis de cierre.");
+    
+        // 🔹 Si la expresión es un solo elemento (número o símbolo), devuélvelo sin ListExpr
+        if (currentList.size() == 1) {
+            return currentList.get(0);
+        }
+    
         return new ListExpr(currentList);
     }
+    
 
     private Expr parseAtom(String token) {
         try {

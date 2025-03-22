@@ -34,21 +34,24 @@ public class LispEvaluator {
         } else if (expr instanceof ListExpr) {
             List<Expr> elements = ((ListExpr) expr).elements;
             if (elements.isEmpty()) return expr;
-
-            Expr first = eval(elements.get(0));
+    
+            // No evalúes el operador antes de comprobar si es un built-in
+            Expr first = elements.get(0);
             if (first instanceof Symbol) {
-                String funcName = ((Symbol) first).toString();
+                String funcName = ((Symbol) first).name;  // Accede al nombre del símbolo
                 if (builtins.containsKey(funcName)) {
                     List<Expr> args = new ArrayList<>();
                     for (int i = 1; i < elements.size(); i++) {
                         args.add(eval(elements.get(i))); // Evaluar argumentos
                     }
                     return builtins.get(funcName).apply(args);
-                } else if ("SETQ".equals(funcName)) {
+                }
+                // SETQ y QUOTE siguen igual
+                else if ("SETQ".equals(funcName)) {
                     if (elements.size() != 3 || !(elements.get(1) instanceof Symbol)) {
                         throw new RuntimeException("Error en SETQ: Uso incorrecto");
                     }
-                    String varName = ((Symbol) elements.get(1)).toString();
+                    String varName = ((Symbol) elements.get(1)).name;
                     Expr value = eval(elements.get(2));
                     variables.put(varName, value);
                     return value;
@@ -57,12 +60,13 @@ public class LispEvaluator {
                     if (elements.size() != 2) {
                         throw new RuntimeException("Error en QUOTE: Uso incorrecto");
                     }
-                    return elements.get(1); // Retorna el argumento sin evaluarlo
+                    return elements.get(1);
                 }
-                
             }
+    
             throw new RuntimeException("Operador no válido: " + first);
         }
         throw new RuntimeException("Expresión no reconocida");
     }
+    
 }
