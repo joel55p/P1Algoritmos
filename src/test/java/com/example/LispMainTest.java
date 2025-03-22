@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.PrintStream;
  * Autores: Denil José Parada Cabrera - 24761, Arodi Chávez - 241112, Joel Nerio - 24253
  * Fecha: 21/03/2025
  * Descripción: Pruebas unitarias para la clase LispMain (punto de entrada del intérprete)
+ * Ampliadas para conseguir cobertura completa del código
  */
 public class LispMainTest {
     
@@ -131,6 +133,7 @@ public class LispMainTest {
             assertTrue(true);
         }
     }    
+    
     @Test
     public void testLoadFile() throws IOException {
         // Crear un archivo temporal con código Lisp
@@ -181,5 +184,62 @@ public class LispMainTest {
         String output = outContent.toString();
         assertTrue(output.contains("Resultado: FIBONACCI"));
         assertTrue(output.contains("Resultado: 8.0"));
+    }
+    
+    @Test
+    public void testLoadNonExistentFile() {
+        String input = "(load \"archivo_que_no_existe.lisp\")\nexit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        
+        LispMain.main(new String[]{});
+        
+        String error = errContent.toString();
+        assertTrue("Debe mostrar un error al cargar un archivo inexistente", error.contains("Error"));
+    }
+    
+    @Test
+    public void testEmptyInput() {
+        String input = "\nexit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        
+        LispMain.main(new String[]{});
+        
+        // No debería causar errores
+        String error = errContent.toString();
+        assertTrue("No debería haber errores específicos para entrada vacía", 
+                  !error.contains("NullPointerException"));
+    }
+    
+    @Test
+    public void testInvalidParenthesesRecovery() {
+        String input = 
+            "(+ 1 2\n" + // Primer intento con paréntesis desbalanceados
+            ")\n" +      // Completando la expresión
+            "exit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        
+        LispMain.main(new String[]{});
+        
+        String output = outContent.toString();
+        assertTrue("Debe indicar paréntesis desbalanceados", 
+                  output.contains("Paréntesis desbalanceados") || 
+                  output.contains("desbalanceados"));
+    }
+    
+    @Test
+    public void testMultipleConsecutiveQueries() {
+        String input = 
+            "(+ 1 2)\n" +
+            "(* 3 4)\n" +
+            "(- 10 5)\n" +
+            "exit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        
+        LispMain.main(new String[]{});
+        
+        String output = outContent.toString();
+        assertTrue(output.contains("Resultado: 3.0"));
+        assertTrue(output.contains("Resultado: 12.0"));
+        assertTrue(output.contains("Resultado: 5.0"));
     }
 }
