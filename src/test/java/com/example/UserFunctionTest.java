@@ -162,4 +162,96 @@ public class UserFunctionTest {
         assertTrue(evaluator.variables.containsKey("X"));
         assertEquals(1000.0, ((NumberExpr) evaluator.variables.get("X")).value, 0.001);
     }
+    
+    @Test
+    public void testUserFunctionMultipleExpressions() {
+        // Crear una función con múltiples expresiones en el cuerpo
+        List<Symbol> parameters = new ArrayList<>();
+        parameters.add(new Symbol("N"));
+        
+        List<Expr> body = new ArrayList<>();
+        // Primera expresión: (SETQ TEMP (+ N 1))
+        List<Expr> setqElements = new ArrayList<>();
+        setqElements.add(new Symbol("SETQ"));
+        setqElements.add(new Symbol("TEMP"));
+        
+        List<Expr> addElements = new ArrayList<>();
+        addElements.add(new Symbol("+"));
+        addElements.add(new Symbol("N"));
+        addElements.add(new NumberExpr(1));
+        
+        setqElements.add(new ListExpr(addElements));
+        body.add(new ListExpr(setqElements));
+        
+        // Segunda expresión: (SETQ RESULT (* TEMP 2))
+        List<Expr> setqElements2 = new ArrayList<>();
+        setqElements2.add(new Symbol("SETQ"));
+        setqElements2.add(new Symbol("RESULT"));
+        
+        List<Expr> multElements = new ArrayList<>();
+        multElements.add(new Symbol("*"));
+        multElements.add(new Symbol("TEMP"));
+        multElements.add(new NumberExpr(2));
+        
+        setqElements2.add(new ListExpr(multElements));
+        body.add(new ListExpr(setqElements2));
+        
+        // Tercera expresión: RESULT (solo devuelve la variable)
+        body.add(new Symbol("RESULT"));
+        
+        UserFunction function = new UserFunction(parameters, body);
+        
+        // Crear evaluador y argumentos
+        LispEvaluator evaluator = new LispEvaluator();
+        List<Expr> args = new ArrayList<>();
+        args.add(new NumberExpr(5));
+        
+        // Invocar la función: (5+1)*2 = 12
+        Expr result = function.invoke(args, evaluator);
+        
+        // Verificar resultado
+        assertTrue(result instanceof NumberExpr);
+        assertEquals(12.0, ((NumberExpr) result).value, 0.001);
+        
+        // Verificar que las variables locales no afectan al ámbito global
+        assertFalse(evaluator.variables.containsKey("TEMP"));
+        assertFalse(evaluator.variables.containsKey("RESULT"));
+    }
+    
+    @Test
+    public void testUserFunctionWithMultipleBodyExpressions() {
+        // Crear una función con múltiples expresiones en el cuerpo
+        List<Symbol> parameters = new ArrayList<>();
+        parameters.add(new Symbol("X"));
+        
+        List<Expr> body = new ArrayList<>();
+        // Primera expresión: (+ X 1)
+        List<Expr> expr1 = new ArrayList<>();
+        expr1.add(new Symbol("+"));
+        expr1.add(new Symbol("X"));
+        expr1.add(new NumberExpr(1));
+        body.add(new ListExpr(expr1));
+        
+        // Segunda expresión: (- X 1)
+        List<Expr> expr2 = new ArrayList<>();
+        expr2.add(new Symbol("-"));
+        expr2.add(new Symbol("X"));
+        expr2.add(new NumberExpr(1));
+        body.add(new ListExpr(expr2));
+        
+        UserFunction function = new UserFunction(parameters, body);
+        
+        // Invocar la función
+        LispEvaluator evaluator = new LispEvaluator();
+        List<Expr> args = new ArrayList<>();
+        args.add(new NumberExpr(10));
+        
+        Expr result = function.invoke(args, evaluator);
+        
+        // La función debe devolver el resultado de la última expresión (10-1=9)
+        assertTrue(result instanceof NumberExpr);
+        assertEquals(9.0, ((NumberExpr) result).value, 0.001);
+    }
+    
+
 }

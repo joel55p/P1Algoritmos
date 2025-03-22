@@ -111,4 +111,88 @@ public class LispInputPreprocessorTest {
         assertTrue(result.contains("(- N 1)"));
         assertTrue(result.contains("(- N 2)"));
     }
+    
+    @Test
+    public void testNormalizeMultipleCommentStyles() {
+        // Probar con diferentes estilos de comentarios
+        String input = "(+ 2 3) ; Comentario simple\n(* 4 5) ;; Comentario doble\n(- 6 1) ;;; Comentario triple";
+        String expected = "(+ 2 3) (* 4 5) (- 6 1)";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizeCommentsWithSpecialChars() {
+        // Comentarios con caracteres especiales
+        String input = "(+ 2 3) ; !@#$%^&*()_+\n(* 4 5) ;; <>,./;'[]\\";
+        String expected = "(+ 2 3) (* 4 5)";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizeWithMixedWhitespace() {
+        // Diferentes tipos de espacios en blanco
+        String input = "(+\t2\n3\r\n4\f5)";
+        String expected = "(+ 2 3 4 5)";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizeWithConsecutiveComments() {
+        // Líneas consecutivas de comentarios
+        String input = "; Comentario 1\n;; Comentario 2\n;;; Comentario 3\n(+ 2 3)";
+        String expected = "(+ 2 3)";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizeWithOnlyComments() {
+        // Solo comentarios sin código
+        String input = "; Solo comentarios\n;; Sin código";
+        String expected = "";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizeWithCommentInMiddle() {
+        // Comentario en medio de una expresión
+        String input = "(+ 2 ; Comentario en medio\n 3)";
+        String expected = "(+ 2 3)";
+        
+        assertEquals(expected, LispInputPreprocessor.normalize(input));
+    }
+    
+    @Test
+    public void testNormalizePreservesComplexStructure() {
+        // Asegurar que la estructura de expresiones anidadas se mantiene
+        String input = "  (DEFUN\n  FACTORIAL\t(N)\n  (COND ((=\nN 0) 1)\n (T (*\nN (FACTORIAL (- N 1))))))  ";
+        String normalized = LispInputPreprocessor.normalize(input);
+        
+        // Verificar que contiene todos los elementos correctos
+        assertTrue(normalized.contains("DEFUN"));
+        assertTrue(normalized.contains("FACTORIAL"));
+        assertTrue(normalized.contains("(N)"));
+        assertTrue(normalized.contains("COND"));
+        assertTrue(normalized.contains("(= N 0)"));
+        assertTrue(normalized.contains("(* N (FACTORIAL (- N 1)))"));
+    }
+    
+    @Test
+    public void testFixComplexCONDExpression() {
+        // Probar una expresión COND más compleja
+        String input = "(COND ((= X 0) (+ Y 1))\n((> X 0) (* Y 2))\n(T (- Y 3)))";
+        String result = LispInputPreprocessor.fixCommonSyntaxIssues(input);
+        
+        // Verificar que el formato es correcto manualmente
+        assertTrue(result.contains("(COND") && result.contains("(= X 0)") && 
+                  result.contains("(+ Y 1)") && result.contains("(> X 0)") && 
+                  result.contains("(* Y 2)") && result.contains("(T") && 
+                  result.contains("(- Y 3)"));
+    }
+    
+
 }
