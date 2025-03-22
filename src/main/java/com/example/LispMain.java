@@ -8,6 +8,11 @@ import java.io.File;
 
 public class LispMain {
     
+    // Códigos de color ANSI para la consola
+    private static final String RESET = "\u001B[0m";
+    private static final String RED = "\u001B[31m";
+    private static final String YELLOW = "\u001B[33m";
+    
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         LispParser parser = new LispParser();
@@ -18,6 +23,7 @@ public class LispMain {
         System.out.println("Para salir: exit");
         
         StringBuilder inputBuffer = new StringBuilder();
+        boolean waitingForCompletion = false;
         
         while (true) {
             // El prompt cambia según si estamos en medio de una entrada multi-línea
@@ -47,6 +53,28 @@ public class LispMain {
                 }
                 continue;
             }
+            
+            // Verificar si la línea por sí sola tiene paréntesis desbalanceados
+            if (!waitingForCompletion && !LispInputPreprocessor.hasBalancedParentheses(line)) {
+                System.out.println(YELLOW + "Advertencia: Paréntesis desbalanceados en la línea actual." + RESET);
+                
+                // Verificar si hay más paréntesis de cierre que de apertura (esto es un error irrecuperable)
+                int openCount = 0, closeCount = 0;
+                for (char c : line.toCharArray()) {
+                    if (c == '(') openCount++;
+                    else if (c == ')') closeCount++;
+                }
+                
+                if (closeCount > openCount) {
+                    System.out.println(RED + "Error: Hay más paréntesis de cierre ')' que de apertura '('." + RESET);
+                    // Descartar esta línea y empezar de nuevo
+                    inputBuffer.setLength(0);
+                    waitingForCompletion = false;
+                    continue;
+                }
+                
+                waitingForCompletion = true;
+            }
 
             // Añadir la línea al buffer con un espacio
             if (inputBuffer.length() > 0) {
@@ -57,8 +85,11 @@ public class LispMain {
             // Normalizar la entrada para verificar los paréntesis
             String normalizedInput = LispInputPreprocessor.normalize(inputBuffer.toString());
             
+            // Comprobar si ahora está balanceado
+            boolean isBalanced = LispInputPreprocessor.hasBalancedParentheses(normalizedInput);
+            
             // Si los paréntesis están balanceados, procesar la entrada
-            if (LispInputPreprocessor.hasBalancedParentheses(normalizedInput)) {
+            if (isBalanced) {
                 try {
                     // Parsing y evaluación
                     Expr expression = parser.parse(normalizedInput);
@@ -69,13 +100,21 @@ public class LispMain {
                     
                     // Limpiar el buffer para la siguiente entrada
                     inputBuffer.setLength(0);
+                    waitingForCompletion = false;
                 } catch (Exception e) {
-                    System.err.println("Error: " + e.getMessage());
+                    System.err.println(RED + "Error: " + e.getMessage() + RESET);
                     // Limpiar el buffer después de un error
                     inputBuffer.setLength(0);
+                    waitingForCompletion = false;
                 }
+            } else if (!waitingForCompletion) {
+                // Si no está balanceado y no estábamos esperando completarlo,
+                // es un error irrecuperable
+                System.out.println(RED + "Error: Paréntesis desbalanceados en la expresión. Se requiere más entrada." + RESET);
+                waitingForCompletion = true;
             }
-            // Si los paréntesis no están balanceados, continuamos leyendo más líneas
+            // Si los paréntesis no están balanceados y estábamos esperando completarlo,
+            // continuamos leyendo más líneas
         }
 
         scanner.close();
