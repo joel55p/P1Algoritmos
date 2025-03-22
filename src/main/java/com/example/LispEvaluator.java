@@ -1,15 +1,33 @@
+
+/**
+ * Universidad del Valle de Guatemala
+ * Departamento de Ciencia de la Computación
+ * Autores: Denil José Parada Cabrera - 24761, Arodi Chávez - 241112, Joel Nerio - 24253
+ * Fecha: 21/03/2025
+ * Descripción: Clase que implementa el evaluador de expresiones para el intérprete Lisp.
+ * Se encarga de evaluar expresiones Lisp según las reglas semánticas del lenguaje,
+ * incluyendo operaciones matemáticas, funciones integradas, construcciones especiales como
+ * SETQ, QUOTE, DEFUN y COND, así como la evaluación de funciones definidas por el usuario.
+ */
 package com.example;
 
 import java.util.*;
 import java.util.function.Function;
 
-
 public class LispEvaluator {
+    /** Mapa que almacena las variables definidas en el entorno */
     public Map<String, Expr> variables = new HashMap<>();
+    
+    /** Mapa que almacena las funciones integradas del lenguaje */
     private Map<String, Function<List<Expr>, Expr>> builtins = new HashMap<>();
+    
+    /** Mapa que almacena las funciones definidas por el usuario */
     private Map<String, UserFunction> userFunctions = new HashMap<>();
 
-
+    /**
+     * Constructor del evaluador Lisp.
+     * Inicializa todas las funciones integradas (builtins) y las constantes por defecto.
+     */
     public LispEvaluator() {
         // Operaciones matemáticas básicas que se ejecutarán en el lisp
         builtins.put("+", args -> new NumberExpr(((NumberExpr) args.get(0)).value + ((NumberExpr) args.get(1)).value));
@@ -34,9 +52,15 @@ public class LispEvaluator {
             }
             return elements.get(0);
         });
-
     }
 
+    /**
+     * Evalúa una expresión Lisp según las reglas del lenguaje.
+     * 
+     * @param expr La expresión a evaluar
+     * @return El resultado de la evaluación
+     * @throws RuntimeException Si ocurre un error durante la evaluación
+     */
     public Expr eval(Expr expr) {
         if (expr instanceof NumberExpr) {
             return expr;
@@ -123,13 +147,10 @@ public class LispEvaluator {
                     }
                     throw new RuntimeException("Error en COND: ninguna condición fue verdadera.");
                 }
-                
-                
             }
     
             throw new RuntimeException("Operador no válido: " + first);
         }
         throw new RuntimeException("Expresión no reconocida");
     }
-    
 }

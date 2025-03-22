@@ -1,9 +1,13 @@
-package com.example;
-
 /**
- * Preprocesador para entrada Lisp que normaliza el formato antes de enviar al parser.
+ * Universidad del Valle de Guatemala
+ * Departamento de Ciencia de la Computación
+ * Autores: Denil José Parada Cabrera - 24761, Arodi Chávez - 241112, Joel Nerio - 24253
+ * Fecha: 21/03/2025
+ * Descripción: Preprocesador para entrada Lisp que normaliza el formato antes de enviar al parser.
  * Maneja tanto entrada de una sola línea como múltiples líneas con indentación.
  */
+package com.example;
+
 public class LispInputPreprocessor {
     
     /**

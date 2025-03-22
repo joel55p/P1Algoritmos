@@ -1,6 +1,22 @@
+/**
+ * Universidad del Valle de Guatemala
+ * Departamento de Ciencia de la Computación
+ * Autores: Denil José Parada Cabrera - 24761, Arodi Chávez - 241112, Joel Nerio - 24253
+ * Fecha: 21/03/2025
+ * Descripción: Clase de prueba para el intérprete Lisp.
+ * Contiene pruebas de funcionalidad para evaluar el correcto funcionamiento
+ * de las funciones definidas por el usuario, como Fibonacci y Malan.
+ */
 package com.example;
 
 public class LispTest {
+    /**
+     * Método principal que ejecuta pruebas para el intérprete Lisp.
+     * Prueba la definición y evaluación de funciones recursivas en formato
+     * multilínea y de una sola línea.
+     * 
+     * @param args Argumentos de línea de comandos (no se utilizan)
+     */
     public static void main(String[] args) {
         // Las funciones que quieres probar, en formato multilínea
         String fibonacciMultiline = 
@@ -62,6 +78,11 @@ public class LispTest {
         }
     }
     
+    /**
+     * Procesa una expresión Lisp, la normaliza y comprueba el balance de paréntesis.
+     * 
+     * @param expression La expresión Lisp a procesar
+     */
     private static void processExpression(String expression) {
         System.out.println("Expresión original:");
         System.out.println(expression);

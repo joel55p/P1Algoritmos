@@ -1,3 +1,12 @@
+/**
+ * Universidad del Valle de Guatemala
+ * Departamento de Ciencia de la Computación
+ * Autores: Denil José Parada Cabrera - 24761, Arodi Chávez - 241112, Joel Nerio - 24253
+ * Fecha: 21/03/2025
+ * Descripción: Clase principal del intérprete Lisp. Proporciona una interfaz de línea de comandos
+ * para evaluar expresiones Lisp, con capacidad para entrada multilínea y carga de archivos.
+ * Incluye manejo de errores para paréntesis desbalanceados y otros problemas de sintaxis.
+ */
 package com.example;
 import java.util.Scanner;
 import java.io.BufferedReader;
@@ -11,6 +20,11 @@ public class LispMain {
     private static final String RED = "\u001B[31m";
     private static final String YELLOW = "\u001B[33m";
     
+    /**
+     * Método principal que ejecuta el intérprete Lisp interactivo.
+     * 
+     * @param args Argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         LispParser parser = new LispParser();
@@ -120,6 +134,10 @@ public class LispMain {
     
     /**
      * Carga y ejecuta un archivo Lisp línea por línea.
+     * 
+     * @param filename Ruta del archivo Lisp a cargar y ejecutar
+     * @param parser Instancia del parser Lisp para analizar las expresiones
+     * @param evaluator Instancia del evaluador Lisp para evaluar las expresiones
      */
     private static void loadAndExecuteFile(String filename, LispParser parser, LispEvaluator evaluator) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
