@@ -77,4 +77,38 @@ public class LispInputPreprocessorTest {
         // El resultado debe ser una sola línea sin saltos
         assertFalse(normalized.contains("\n"));
     }
+    
+    @Test
+    public void testFixCommonSyntaxIssuesWithoutFibonacci() {
+        // Probar cuando no contiene FIBONACCI pero sí COND
+        String input = "(DEFUN OTHER_FUNC (N) (COND ((= N 0) 1) ((= N 1) 1) (T (+ N 1))))";
+        String result = LispInputPreprocessor.fixCommonSyntaxIssues(input);
+        assertEquals(input, result); // No debería cambiar nada
+        
+        // Probar cuando contiene diferentes corchetes pero no es FIBONACCI
+        String bracketInput = "(ANOTHER_FUNC [X Y] 123)";
+        String bracketResult = LispInputPreprocessor.fixCommonSyntaxIssues(bracketInput);
+        assertEquals(bracketInput, bracketResult); // No debería cambiar nada
+    }
+    
+    @Test
+    public void testFixCommonSyntaxIssuesWithOnlyFibonacci() {
+        // Probar cuando contiene FIBONACCI pero no COND
+        String input = "(FIBONACCI 5)";
+        String result = LispInputPreprocessor.fixCommonSyntaxIssues(input);
+        assertEquals(input, result); // No debería cambiar nada
+    }
+    
+    @Test
+    public void testFixCommonSyntaxIssuesWithSpecificFormat() {
+        // Probar específicamente el formato que maneja el método
+        String input = "(DEFUN FIBONACCI (N) (COND ((= N 0) 1) ((= N 1) 1) (T (+ (FIBONACCI [- N 1.0]) (FIBONACCI [- N 2.0])))))";
+        String result = LispInputPreprocessor.fixCommonSyntaxIssues(input);
+        
+        // Verificar que los corchetes específicos fueron reemplazados
+        assertFalse(result.contains("[- N 1.0]"));
+        assertFalse(result.contains("[- N 2.0]"));
+        assertTrue(result.contains("(- N 1)"));
+        assertTrue(result.contains("(- N 2)"));
+    }
 }

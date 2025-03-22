@@ -141,13 +141,37 @@ public class LispLexerTest {
         List<String> tokens = LispLexer.tokenize("((()))");
         
         assertEquals(6, tokens.size());
-        // Verificar que todos son paréntesis
         for (int i = 0; i < 3; i++) {
             assertEquals("(", tokens.get(i));
         }
         for (int i = 3; i < 6; i++) {
             assertEquals(")", tokens.get(i));
         }
+    }
+    
+    @Test
+    public void testTokenizeWithSymbolsContainingSpecialChars() {
+        List<String> tokens = LispLexer.tokenize("(* x_2 y-3)");
+        
+        assertEquals(5, tokens.size());
+        assertEquals("(", tokens.get(0));
+        assertEquals("*", tokens.get(1));
+        assertEquals("x_2", tokens.get(2));
+        assertEquals("y-3", tokens.get(3));
+        assertEquals(")", tokens.get(4));
+    }
+    
+    @Test
+    public void testTokenizeWithMultipleContinuousTokens() {
+        List<String> tokens = LispLexer.tokenize("(abc123)(xyz)");
+        
+        assertEquals(6, tokens.size());
+        assertEquals("(", tokens.get(0));
+        assertEquals("abc123", tokens.get(1));
+        assertEquals(")", tokens.get(2));
+        assertEquals("(", tokens.get(3));
+        assertEquals("xyz", tokens.get(4));
+        assertEquals(")", tokens.get(5));
     }
     
     @Test
@@ -227,5 +251,32 @@ public class LispLexerTest {
         assertTrue("No debería haber errores en la salida estándar para entrada vacía", 
                   !output.contains("Exception") && !output.contains("Error"));
         assertEquals("No debería haber errores en la salida de error para entrada vacía", "", error);
+    }
+    
+    @Test
+    public void testTokenizeComplexExpression() {
+        // Probar con una expresión más compleja que mezcla varios tipos de tokens
+        List<String> tokens = LispLexer.tokenize("(DEFUN FACTORIAL (N) (COND ((= N 0) 1) (T (* N (FACTORIAL (- N 1))))))");
+        
+        assertTrue(tokens.size() > 20);  // Debería tener muchos tokens
+        assertEquals("(", tokens.get(0));
+        assertEquals("DEFUN", tokens.get(1));
+        assertEquals("FACTORIAL", tokens.get(2));
+        assertEquals("(", tokens.get(3));
+        assertEquals("N", tokens.get(4));
+        assertEquals(")", tokens.get(5));
+    }
+    
+    @Test
+    public void testMainWithDirectExit() {
+        // Probar cuando el usuario escribe "salir" inmediatamente
+        String input = "salir\n";
+        ByteArrayInputStream inContent = new ByteArrayInputStream(input.getBytes());
+        System.setIn(inContent);
+        
+        LispLexer.main(new String[]{});
+        
+        String output = outContent.toString();
+        assertTrue("Debe salir correctamente", output.contains("Saliendo"));
     }
 }
