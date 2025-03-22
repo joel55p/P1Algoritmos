@@ -1,3 +1,5 @@
+package com.example;
+
 public class BooleanExpr extends Expr {
     public final boolean value;
 
